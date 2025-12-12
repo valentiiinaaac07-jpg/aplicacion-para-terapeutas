@@ -1,0 +1,5 @@
+{
+  "name": "MenteClara CBT",
+  "description": "Una aplicación completa para Terapia Cognitivo Conductual (TCC/CBT) que conecta terapeutas y pacientes. Permite la gestión de pacientes, generación de ejercicios personalizados mediante IA basados en síntomas, seguimiento de progreso y herramientas de seguridad y privacidad.",
+  "requestFramePermissions": []
+}
