@@ -132,6 +132,114 @@ enum View {
   AI_GENERATOR // New View
 }
 
+// --- Exercise Detail Component (Extracted to fix Hook rules) ---
+interface ExerciseDetailViewProps {
+  exercise: Exercise;
+  onBack: () => void;
+  onComplete: (notes: string, rating: number) => void;
+}
+
+const ExerciseDetailView: React.FC<ExerciseDetailViewProps> = ({ exercise, onBack, onComplete }) => {
+  const [notes, setNotes] = useState('');
+  const [rating, setRating] = useState(5);
+
+  return (
+    <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <button 
+            onClick={onBack} 
+            className="mb-6 text-slate-500 hover:text-teal-600 flex items-center gap-1 transition-colors"
+        >
+            <ArrowLeft size={18} /> Volver al tablero
+        </button>
+
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            {/* Header Coherente: Vincula Síntoma con Solución */}
+            <div className="bg-teal-600 p-8 text-white relative overflow-hidden">
+                <Target className="absolute -right-6 -top-6 text-teal-500/20 w-48 h-48 rotate-12" />
+                
+                <div className="relative z-10">
+                    <div className="inline-flex items-center gap-2 bg-teal-700/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-teal-100 mb-4 border border-teal-500/30">
+                        <Target size={14} />
+                        Objetivo Terapéutico: {exercise.symptomsAddressed}
+                    </div>
+                    <h2 className="text-3xl font-bold mb-3">{exercise.title}</h2>
+                    <p className="text-teal-50 text-lg leading-relaxed max-w-2xl">{exercise.description}</p>
+                </div>
+            </div>
+            
+            <div className="p-8">
+                <div className="flex items-center gap-2 mb-6">
+                    <div className="h-8 w-1 bg-teal-500 rounded-full"></div>
+                    <h3 className="font-bold text-slate-800 text-xl">Instrucciones Paso a Paso</h3>
+                </div>
+                
+                <div className="space-y-6 mb-10">
+                    {exercise.steps.map((step, idx) => (
+                        <div key={idx} className="flex gap-4 group">
+                            <div className="flex-shrink-0 w-10 h-10 bg-teal-50 text-teal-700 rounded-xl border border-teal-100 flex items-center justify-center font-bold text-lg group-hover:bg-teal-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                                {idx + 1}
+                            </div>
+                            <div className="pt-2 bg-slate-50 p-4 rounded-xl rounded-tl-none border border-slate-100 w-full group-hover:border-teal-100 transition-colors">
+                                <p className="text-slate-700 leading-relaxed text-lg">{step}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200">
+                    <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <CheckCircle className="text-teal-600" size={24} />
+                        Registro de Finalización
+                    </h3>
+                    
+                    <div className="mb-8">
+                        <label className="block text-sm font-semibold text-slate-700 mb-4">
+                            ¿Cómo te sientes ahora respecto a tus síntomas iniciales? (1-10)
+                        </label>
+                        <div className="px-2">
+                            <input 
+                                type="range" 
+                                min="1" 
+                                max="10" 
+                                value={rating} 
+                                onChange={(e) => setRating(Number(e.target.value))}
+                                className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600 hover:accent-teal-500 transition-all"
+                            />
+                            <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium uppercase tracking-wide">
+                                <span>Peor / Igual</span>
+                                <span className="text-teal-600 text-xl font-bold -mt-2">{rating}</span>
+                                <span>Mucho Mejor</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mb-6">
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            Reflexiones o Notas
+                        </label>
+                        <textarea 
+                            className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none transition-shadow text-slate-700 bg-white"
+                            rows={3}
+                            placeholder="¿Qué pensamientos surgieron? ¿Fue difícil concentrarse?"
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                        />
+                    </div>
+
+                    <button 
+                        onClick={() => onComplete(notes, rating)}
+                        className="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 transform active:scale-[0.99]"
+                    >
+                        <Check size={24} strokeWidth={3} />
+                        Completar Ejercicio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+  );
+};
+
 export default function App() {
   // --- Global State ---
   const [currentView, setCurrentView] = useState<View>(View.LOGIN);
@@ -971,108 +1079,6 @@ export default function App() {
       );
   };
 
-  const renderExerciseDetail = () => {
-      if (!selectedExercise) return null;
-      const [notes, setNotes] = useState('');
-      const [rating, setRating] = useState(5);
-
-      return (
-        <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <button 
-                onClick={() => setCurrentView(View.PATIENT_DASHBOARD)} 
-                className="mb-6 text-slate-500 hover:text-teal-600 flex items-center gap-1 transition-colors"
-            >
-                <ArrowLeft size={18} /> Volver al tablero
-            </button>
-
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                {/* Header Coherente: Vincula Síntoma con Solución */}
-                <div className="bg-teal-600 p-8 text-white relative overflow-hidden">
-                    <Target className="absolute -right-6 -top-6 text-teal-500/20 w-48 h-48 rotate-12" />
-                    
-                    <div className="relative z-10">
-                        <div className="inline-flex items-center gap-2 bg-teal-700/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-teal-100 mb-4 border border-teal-500/30">
-                            <Target size={14} />
-                            Objetivo Terapéutico: {selectedExercise.symptomsAddressed}
-                        </div>
-                        <h2 className="text-3xl font-bold mb-3">{selectedExercise.title}</h2>
-                        <p className="text-teal-50 text-lg leading-relaxed max-w-2xl">{selectedExercise.description}</p>
-                    </div>
-                </div>
-                
-                <div className="p-8">
-                    <div className="flex items-center gap-2 mb-6">
-                        <div className="h-8 w-1 bg-teal-500 rounded-full"></div>
-                        <h3 className="font-bold text-slate-800 text-xl">Instrucciones Paso a Paso</h3>
-                    </div>
-                    
-                    <div className="space-y-6 mb-10">
-                        {selectedExercise.steps.map((step, idx) => (
-                            <div key={idx} className="flex gap-4 group">
-                                <div className="flex-shrink-0 w-10 h-10 bg-teal-50 text-teal-700 rounded-xl border border-teal-100 flex items-center justify-center font-bold text-lg group-hover:bg-teal-600 group-hover:text-white transition-colors duration-300 shadow-sm">
-                                    {idx + 1}
-                                </div>
-                                <div className="pt-2 bg-slate-50 p-4 rounded-xl rounded-tl-none border border-slate-100 w-full group-hover:border-teal-100 transition-colors">
-                                    <p className="text-slate-700 leading-relaxed text-lg">{step}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200">
-                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            <CheckCircle className="text-teal-600" size={24} />
-                            Registro de Finalización
-                        </h3>
-                        
-                        <div className="mb-8">
-                            <label className="block text-sm font-semibold text-slate-700 mb-4">
-                                ¿Cómo te sientes ahora respecto a tus síntomas iniciales? (1-10)
-                            </label>
-                            <div className="px-2">
-                                <input 
-                                    type="range" 
-                                    min="1" 
-                                    max="10" 
-                                    value={rating} 
-                                    onChange={(e) => setRating(Number(e.target.value))}
-                                    className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600 hover:accent-teal-500 transition-all"
-                                />
-                                <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium uppercase tracking-wide">
-                                    <span>Peor / Igual</span>
-                                    <span className="text-teal-600 text-xl font-bold -mt-2">{rating}</span>
-                                    <span>Mucho Mejor</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mb-6">
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                Reflexiones o Notas
-                            </label>
-                            <textarea 
-                                className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none transition-shadow text-slate-700 bg-white"
-                                rows={3}
-                                placeholder="¿Qué pensamientos surgieron? ¿Fue difícil concentrarse?"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                            />
-                        </div>
-
-                        <button 
-                            onClick={() => handleCompleteExercise(notes, rating)}
-                            className="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 transform active:scale-[0.99]"
-                        >
-                            <Check size={24} strokeWidth={3} />
-                            Completar Ejercicio
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-  };
-
   // --- Main Render ---
 
   return (
@@ -1083,7 +1089,13 @@ export default function App() {
       {currentView === View.AI_GENERATOR && renderAIGenerator()}
       {currentView === View.PATIENT_DETAILS && renderPatientDetails()}
       {currentView === View.PATIENT_DASHBOARD && renderPatientDashboard()}
-      {currentView === View.EXERCISE_DETAIL && renderExerciseDetail()}
+      {currentView === View.EXERCISE_DETAIL && selectedExercise && (
+          <ExerciseDetailView 
+            exercise={selectedExercise} 
+            onBack={() => setCurrentView(View.PATIENT_DASHBOARD)} 
+            onComplete={handleCompleteExercise} 
+          />
+      )}
     </Layout>
   );
 }
