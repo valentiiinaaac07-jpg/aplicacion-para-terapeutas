@@ -1,13 +1,17 @@
 export enum UserRole {
   THERAPIST = 'THERAPIST',
   PATIENT = 'PATIENT',
+  ADMIN = 'ADMIN',
 }
 
 export interface User {
   id: string;
-  username: string; // Used for login
+  email: string; // Replaces username as the primary ID
+  password?: string;
   name: string;
   role: UserRole;
+  status: 'active' | 'inactive';
+  lastLoginDate?: string;
 }
 
 export interface ExerciseStep {
@@ -19,7 +23,7 @@ export interface Exercise {
   id: string;
   title: string;
   description: string;
-  symptomsAddressed: string; // The symptoms this exercise targets
+  symptomsAddressed: string;
   steps: string[];
   assignedDate: string;
   completed: boolean;
@@ -54,4 +58,9 @@ export interface GeminiExerciseResponse {
   title: string;
   description: string;
   steps: string[];
+}
+
+export interface LoginLog {
+  email: string;
+  timestamp: string;
 }
